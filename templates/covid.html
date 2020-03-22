@@ -13,6 +13,9 @@
 <p> Italy Recovered daily </p>
 <div id="italy"></div>
 <br>
+<p> Spain Recovered daily </p>
+<div id="spain"></div>
+<br>
 <p> Germany Recovered daily </p>
 <div id="germany"></div>
 <br>
@@ -28,7 +31,7 @@
 	/////////////////////////////////
 	
 	var data = [ {% for m in h %}
-					{ date: "{{ m.date }}",recovered: "{{ m.recovered }}" },
+					{ date: "{{ m.date }}",recovered: "{{ m.recovered }}", confirmed: "{{m.confirmed}}" },
 					{% endfor %} ];
 	// === 1. Boilerplate setup
 	// Set canvas margins
@@ -41,41 +44,80 @@
 	    .attr('height', height + margin.top + margin.bottom)
 	  .append('g')
 	    .attr('transform', `translate(${margin.left}, ${margin.top})`);
+
 	// === 2. Set scales and draw line
 	// Set x (timeseries) and y (linear) scales
 	var xScale = d3.scaleTime().range([0, width]);
 	var yScale = d3.scaleLinear().range([height , 0]);
+
+	//Coror 
+	var color = d3.scaleOrdinal(d3.schemeCategory10);
+
 	// === 3. Append data and start drawing
 	// create parseTime helper to turn string into time format (11-Apr-12) into datetime JS object
 	var parseTime = d3.timeParse('%Y-%m-%d');
+
 	// Iterate through each data point and parse strings into time and number format
 	data.forEach(function(d){
 	  d.date = parseTime(d.date);
 	  d.recovered = parseInt(d.recovered);
+	  d.confirmed = parseInt(d.confirmed);
 	});
+
 	// Set the x and y scales to the data ranges x based on min and max date range (d3.extent()) and y based on 0 to max value
 	xScale.domain(d3.extent(data, d => d.date));
-	yScale.domain([0, d3.max(data, d => d.recovered)]);
+	yScale.domain([0, d3.max(data, d => d.confirmed)]);
+	
 	// Create bar and append data.close and x position set based on barWidth equidistant
 	var barWidth = width/ data.length;
-	var bar = svg.selectAll('g')
-	    .data(data, d => d.recovered)
+
+   //Add bars for confirmed
+	var bar2 = svg.selectAll('.bar2')
+	    .data(data, d => d.confirmed)
 	  .enter().append('g')
 	    .attr('transform', (d,i) => `translate(${i * barWidth},0)`)
-	// Add rectangles to bar 
+
+	//Add bars for recovered 
+	var bar = svg.selectAll('.bar')
+	    .data(data, d => d.recovered)
+	  .enter().append('g')
+	    .attr('transform', (d,i) => `translate(${i * barWidth},0)`)	
+
+	// Add rectangles to bar for confirmed
+	bar2.append('rect')
+	  .attr('y', d => yScale(d.confirmed))
+	  .attr('width', barWidth -4)
+	  // .attr('x', barWidth / 2 )
+	  .attr('height', d => height -  yScale(d.confirmed))
+	  .style("fill", "coral")
+
+	// Add rectangles to bar for recovered
 	bar.append('rect')
 	  .attr('y', d => yScale(d.recovered))
-	  .attr('width', barWidth - 4)
+	  .attr('width', barWidth -4 )
+	  // .attr('x', barWidth / 2 + 5)
 	  .attr('height', d => height -  yScale(d.recovered))
 	  .style("fill", "darkgreen")
-	// Add text to rectangles
+
+	// Add text to rectangles for confirmed
+	bar2.append('text')
+	  .attr('y', d => yScale(d.confirmed) - 12)
+	  .attr('text-anchor','middle')
+	  .attr('x', barWidth / 2)
+	  .text(d => d.confirmed)
+	  .style("fill", "maroon")
+	  .style("font-size", "8px");
+
+	// Add text to rectangles for recovered
 	bar.append('text')
 	  .attr('y', d => yScale(d.recovered) - 5)
 	  .attr('text-anchor','middle')
-	  .attr('x', barWidth / 2)
+	  .attr('x', barWidth )
+	  // .attr("transform", "rotate(45)" )
 	  .text(d => d.recovered)
 	  .style("fill", "darkgreen")
 	  .style("font-size", "8px");
+
 	// Add the axis 
 	var xAxis = d3.axisBottom(xScale)
 	  .tickFormat(d3.timeFormat('%Y-%m-%d'))
@@ -86,19 +128,20 @@
 	  .call(xAxis);
 	svg.append('g')
 	  .call(d3.axisLeft(yScale))
+
 </script>
 <script type="text/javascript">
 	///////////////////////////////
 	//ITALY CHART
 	///////////////////////////////
 	var i_data = [ {% for m in i %}
-					{ date: "{{ m.date }}",recovered: "{{ m.recovered }}" },
+					{ date: "{{ m.date }}",recovered: "{{ m.recovered }}", confirmed: "{{m.confirmed}}" },
 					{% endfor %} ];
 	// === 1. Boilerplate setup
 	// Set canvas margins
 	var margin = {top: 20, right: 50, bottom: 30, left: 50};
 	var width = 1000 - margin.left - margin.right;
-	var height = 300 - margin.top - margin.bottom;
+	var height = 250 - margin.top - margin.bottom;
 	// Create svg object
 	var svg = d3.select('#italy').append('svg')
 	    .attr('width', width + margin.left + margin.right)
@@ -118,27 +161,48 @@
 	i_data.forEach(function(d){
 	  d.date = parseTime(d.date);
 	  d.recovered = parseInt(d.recovered);
+	  d.confirmed = parseInt(d.confirmed);
 	});
 
 	// Set the x and y scales to the data ranges x based on min and max date range (d3.extent()) and y based on 0 to max value
 	xScale.domain(d3.extent(i_data, d => d.date));
-	yScale.domain([0, d3.max(i_data, d => d.recovered)]);
+	yScale.domain([0, d3.max(i_data, d => d.confirmed)]);
 
 
 	// Create bar and append data.close and x position set based on barWidth equidistant
 	var barWidth = width/ i_data.length;
-	var bar = svg.selectAll('g')
+
+	var bar2 = svg.selectAll('.bar2')
+	    .data(i_data, d => d.confirmed)
+	  .enter().append('g')
+	    .attr('transform', (d,i) => `translate(${i * barWidth},0)`)
+
+	var bar = svg.selectAll('.bar')
 	    .data(i_data, d => d.recovered)
 	  .enter().append('g')
 	    .attr('transform', (d,i) => `translate(${i * barWidth},0)`)
   
 	// Add rectangles to bar 
+	bar2.append('rect')
+	  .attr('y', d => yScale(d.confirmed))
+	  .attr('width', barWidth - 4)
+	  .attr('height', d => height -  yScale(d.confirmed))
+	  .style("fill", "coral")
+
 	bar.append('rect')
 	  .attr('y', d => yScale(d.recovered))
 	  .attr('width', barWidth - 4)
 	  .attr('height', d => height -  yScale(d.recovered))
 	  .style("fill", "darkgreen")
 
+	// Add text to rectangles
+	bar2.append('text')
+	  .attr('y', d => yScale(d.confirmed) - 12)
+	  .attr('text-anchor','middle')
+	  .attr('x', barWidth / 2)
+	  .text(d => d.confirmed)
+	  .style("fill", "maroon")
+	  .style("font-size", "8px");
 
 	// Add text to rectangles
 	bar.append('text')
@@ -164,12 +228,108 @@
 </script>
 
 <script type="text/javascript">
+	///////////////////////////////
+	//SPAIN CHART
+	///////////////////////////////
+	var s_data = [ {% for m in s %}
+					{ date: "{{ m.date }}",recovered: "{{ m.recovered }}", confirmed: "{{m.confirmed}}" },
+					{% endfor %} ];
+	// === 1. Boilerplate setup
+	// Set canvas margins
+	var margin = {top: 20, right: 50, bottom: 30, left: 50};
+	var width = 1000 - margin.left - margin.right;
+	var height = 250 - margin.top - margin.bottom;
+	// Create svg object
+	var svg = d3.select('#spain').append('svg')
+	    .attr('width', width + margin.left + margin.right)
+	    .attr('height', height + margin.top + margin.bottom)
+	  .append('g')
+	    .attr('transform', `translate(${margin.left}, ${margin.top})`);
+
+	// === 2. Set scales and draw line
+	// Set x (timeseries) and y (linear) scales
+	var xScale = d3.scaleTime().range([0, width]);
+	var yScale = d3.scaleLinear().range([height , 0]);
+
+	// === 3. Append data and start drawing
+	// create parseTime helper to turn string into time format (11-Apr-12) into datetime JS object
+	var parseTime = d3.timeParse('%Y-%m-%d');
+	// Iterate through each data point and parse strings into time and number format
+	s_data.forEach(function(d){
+	  d.date = parseTime(d.date);
+	  d.recovered = parseInt(d.recovered);
+	  d.confirmed = parseInt(d.confirmed);
+	});
+
+	// Set the x and y scales to the data ranges x based on min and max date range (d3.extent()) and y based on 0 to max value
+	xScale.domain(d3.extent(s_data, d => d.date));
+	yScale.domain([0, d3.max(s_data, d => d.confirmed)]);
+
+
+	// Create bar and append data.close and x position set based on barWidth equidistant
+	var barWidth = width/ s_data.length;
+
+	var bar2 = svg.selectAll('.bar2')
+	    .data(s_data, d => d.confirmed)
+	  .enter().append('g')
+	    .attr('transform', (d,i) => `translate(${i * barWidth},0)`)
+
+	var bar = svg.selectAll('.bar')
+	    .data(s_data, d => d.recovered)
+	  .enter().append('g')
+	    .attr('transform', (d,i) => `translate(${i * barWidth},0)`)
+  
+	// Add rectangles to bar 
+	bar2.append('rect')
+	  .attr('y', d => yScale(d.confirmed))
+	  .attr('width', barWidth - 4)
+	  .attr('height', d => height -  yScale(d.confirmed))
+	  .style("fill", "coral")
+
+	bar.append('rect')
+	  .attr('y', d => yScale(d.recovered))
+	  .attr('width', barWidth - 4)
+	  .attr('height', d => height -  yScale(d.recovered))
+	  .style("fill", "darkgreen")
+
+	// Add text to rectangles
+	bar2.append('text')
+	  .attr('y', d => yScale(d.confirmed) - 12)
+	  .attr('text-anchor','middle')
+	  .attr('x', barWidth / 2)
+	  .text(d => d.confirmed)
+	  .style("fill", "maroon")
+	  .style("font-size", "8px");
+
+	// Add text to rectangles
+	bar.append('text')
+	  .attr('y', d => yScale(d.recovered) - 5)
+	  .attr('text-anchor','middle')
+	  .attr('x', barWidth / 2)
+	  .text(d => d.recovered)
+	  .style("fill", "darkgreen")
+	  .style("font-size", "8px");
+
+	// Add the axis 
+	var xAxis = d3.axisBottom(xScale)
+	  .tickFormat(d3.timeFormat('%Y-%m-%d'))
+	  .ticks(5)
+	  .tickSize(0);
+
+	svg.append('g')
+	  .attr('transform', `translate(0, ${height})`)
+	  .call(xAxis);
+
+	svg.append('g')
+	  .call(d3.axisLeft(yScale))
+</script>
+<script type="text/javascript">
 	////////////////////////////////
 	//GERMANY CHART
 	////////////////////////////////
 	
 	var g_data = [ {% for m in g %}
-					{ date: "{{ m.date }}",recovered: "{{ m.recovered }}" },
+					{ date: "{{ m.date }}",recovered: "{{ m.recovered }}", confirmed: "{{m.confirmed}}" },
 					{% endfor %} ];
 
 
@@ -177,7 +337,7 @@
 	// Set canvas margins
 	var margin = {top: 20, right: 50, bottom: 30, left: 50};
 	var width = 1000 - margin.left - margin.right;
-	var height = 300 - margin.top - margin.bottom;
+	var height = 250 - margin.top - margin.bottom;
 
 	// Create svg object
 	var svg = d3.select('#germany').append('svg')
@@ -198,29 +358,49 @@
 	g_data.forEach(function(d){
 	  d.date = parseTime(d.date);
 	  d.recovered = parseInt(d.recovered);
+	  d.confirmed = parseInt(d.confirmed);
 	});
 
 	// Set the x and y scales to the data ranges x based on min and max date range (d3.extent()) and y based on 0 to max value
 	xScale.domain(d3.extent(g_data, d => d.date));
-	yScale.domain([0, d3.max(g_data, d => d.recovered)]);
+	yScale.domain([0, d3.max(g_data, d => d.confirmed)]);
 
 
 	// Create bar and append data.close and x position set based on barWidth equidistant
 	var barWidth = width/ g_data.length;
-	var bar = svg.selectAll('g')
+
+	var bar2 = svg.selectAll('.bar2')
+	    .data(g_data, d => d.confirmed)
+	  .enter().append('g')
+	    .attr('transform', (d,i) => `translate(${i * barWidth},0)`)
+
+	var bar = svg.selectAll('.bar')
 	    .data(g_data, d => d.recovered)
 	  .enter().append('g')
 	    .attr('transform', (d,i) => `translate(${i * barWidth},0)`)
   
 	// Add rectangles to bar 
+	bar2.append('rect')
+	  .attr('y', d => yScale(d.confirmed))
+	  .attr('width', barWidth - 4)
+	  .attr('height', d => height -  yScale(d.confirmed))
+	  .style("fill", "coral")
+
 	bar.append('rect')
 	  .attr('y', d => yScale(d.recovered))
 	  .attr('width', barWidth - 4)
 	  .attr('height', d => height -  yScale(d.recovered))
 	  .style("fill", "darkgreen")
 
-
 	// Add text to rectangles
+	bar2.append('text')
+	  .attr('y', d => yScale(d.confirmed) - 12)
+	  .attr('text-anchor','middle')
+	  .attr('x', barWidth / 2)
+	  .text(d => d.confirmed)
+	  .style("fill", "maroon")
+	  .style("font-size", "8px");
+
 	bar.append('text')
 	  .attr('y', d => yScale(d.recovered) - 5)
 	  .attr('text-anchor','middle')
@@ -248,14 +428,14 @@
 	/////////////////////////////////
 	
 	var n_data = [ {% for m in n %}
-					{ date: "{{ m.date }}",recovered: "{{ m.recovered }}" },
+					{ date: "{{ m.date }}",recovered: "{{ m.recovered }}", confirmed: "{{m.confirmed}}" },
 					{% endfor %} ];
 
 	// === 1. Boilerplate setup
 	// Set canvas margins
 	var margin = {top: 20, right: 50, bottom: 30, left: 50};
 	var width = 1000 - margin.left - margin.right;
-	var height = 300 - margin.top - margin.bottom;
+	var height = 250 - margin.top - margin.bottom;
 
 	// Create svg object
 	var svg = d3.select('#newyork').append('svg')
@@ -276,19 +456,33 @@
 	n_data.forEach(function(d){
 	  d.date = parseTime(d.date);
 	  d.recovered = parseInt(d.recovered);
+	  d.confirmed = parseInt(d.confirmed);
 	});
 
 	// Set the x and y scales to the data ranges x based on min and max date range (d3.extent()) and y based on 0 to max value
 	xScale.domain(d3.extent(n_data, d => d.date));
-	yScale.domain([0, d3.max(n_data, d => d.recovered)]);
+	yScale.domain([0, d3.max(n_data, d => d.confirmed)]);
 
 	// Create bar and append data.close and x position set based on barWidth equidistant
 	var barWidth = width/ n_data.length;
-	var bar = svg.selectAll('g')
+
+	var bar2 = svg.selectAll('.bar2')
+	    .data(n_data, d => d.confirmed)
+	  .enter().append('g')
+	    .attr('transform', (d,i) => `translate(${i * barWidth},0)`)
+
+	var bar = svg.selectAll('.bar')
 	    .data(n_data, d => d.recovered)
 	  .enter().append('g')
 	    .attr('transform', (d,i) => `translate(${i * barWidth},0)`)
   
+	// Add rectangles to bar 
+	bar2.append('rect')
+	  .attr('y', d => yScale(d.confirmed))
+	  .attr('width', barWidth - 4)
+	  .attr('height', d => height -  yScale(d.confirmed))
+	  .style("fill", "coral")
+
 	// Add rectangles to bar 
 	bar.append('rect')
 	  .attr('y', d => yScale(d.recovered))
@@ -296,6 +490,14 @@
 	  .attr('height', d => height -  yScale(d.recovered))
 	  .style("fill", "darkgreen")
 
+	// Add text to rectangles
+	bar2.append('text')
+	  .attr('y', d => yScale(d.confirmed) - 12)
+	  .attr('text-anchor','middle')
+	  .attr('x', barWidth / 2)
+	  .text(d => d.confirmed)
+	  .style("fill", "maroon")
+	  .style("font-size", "8px");
 
 	// Add text to rectangles
 	bar.append('text')
@@ -325,14 +527,14 @@
 	/////////////////////////////////
 	
 	var h_data = [ {% for m in hol %}
-					{ date: "{{ m.date }}",recovered: "{{ m.recovered }}" },
+					{ date: "{{ m.date }}",recovered: "{{ m.recovered }}", confirmed: "{{m.confirmed}}" },
 					{% endfor %} ];
 
 	// === 1. Boilerplate setup
 	// Set canvas margins
 	var margin = {top: 20, right: 50, bottom: 30, left: 50};
 	var width = 1000 - margin.left - margin.right;
-	var height = 300 - margin.top - margin.bottom;
+	var height = 250 - margin.top - margin.bottom;
 
 	// Create svg object
 	var svg = d3.select('#holand').append('svg')
@@ -353,19 +555,33 @@
 	h_data.forEach(function(d){
 	  d.date = parseTime(d.date);
 	  d.recovered = parseInt(d.recovered);
+	  d.confirmed = parseInt(d.confirmed);
 	});
 
 	// Set the x and y scales to the data ranges x based on min and max date range (d3.extent()) and y based on 0 to max value
 	xScale.domain(d3.extent(h_data, d => d.date));
-	yScale.domain([0, d3.max(h_data, d => d.recovered)]);
+	yScale.domain([0, d3.max(h_data, d => d.confirmed)]);
 
 	// Create bar and append data.close and x position set based on barWidth equidistant
 	var barWidth = width/ h_data.length;
-	var bar = svg.selectAll('g')
-	    .data(h_data, d => d.recovered)
+
+	var bar2 = svg.selectAll('.bar2')
+	    .data(h_data, d => d.confirmed)
 	  .enter().append('g')
 	    .attr('transform', (d,i) => `translate(${i * barWidth},0)`)
-  
+
+	var bar = svg.selectAll('.bar')
+	    .data(h_data, d => d.confirmed)
+	  .enter().append('g')
+	    .attr('transform', (d,i) => `translate(${i * barWidth},0)`)
+
+	// Add rectangles to bar 
+	bar2.append('rect')
+	  .attr('y', d => yScale(d.confirmed))
+	  .attr('width', barWidth - 4)
+	  .attr('height', d => height -  yScale(d.confirmed))
+	  .style("fill", "coral")
+
 	// Add rectangles to bar 
 	bar.append('rect')
 	  .attr('y', d => yScale(d.recovered))
@@ -373,6 +589,14 @@
 	  .attr('height', d => height -  yScale(d.recovered))
 	  .style("fill", "darkgreen")
 
+	// Add text to rectangles
+	bar2.append('text')
+	  .attr('y', d => yScale(d.confirmed) - 12)
+	  .attr('text-anchor','middle')
+	  .attr('x', barWidth / 2)
+	  .text(d => d.confirmed)
+	  .style("fill", "maroon")
+	  .style("font-size", "8px");
 
 	// Add text to rectangles
 	bar.append('text')

@@ -15,6 +15,7 @@ def covid():
     germany_data = []
     newyork_data = []
     holand_data = []
+    spain_data = []
 
     def clear_dict(ddict, dict_name):
         ddict.pop('Province/State')
@@ -50,6 +51,8 @@ def covid():
                 newyork_dict = row
             elif row['Province/State'] == 'Netherlands':
                 holand_dict = row
+            elif row['Country/Region'] == 'Spain':
+                spain_dict = row
 
     with open(filename_confirmed, "r") as file:
         reader = csv.DictReader(file, delimiter=',')
@@ -64,6 +67,8 @@ def covid():
                 newyork_dict_conf = row
             elif row['Province/State'] == 'Netherlands':
                 holand_dict_conf = row
+            elif row['Country/Region'] == 'Spain':
+                spain_dict_conf = row
 
     clear_dict(hubei_dict, hubei_data)
     clear_dict(hubei_dict_conf, hubei_data)
@@ -75,17 +80,20 @@ def covid():
     clear_dict(newyork_dict_conf, newyork_data)
     clear_dict(holand_dict, holand_data)
     clear_dict(holand_dict_conf, holand_data)
+    clear_dict(spain_dict, spain_data)
+    clear_dict(spain_dict_conf, spain_data)
 
     prepare_data(hubei_dict, hubei_dict_conf, hubei_data)
     prepare_data(italy_dict, italy_dict_conf, italy_data)
     prepare_data(germany_dict, germany_dict_conf, germany_data)
     prepare_data(newyork_dict, newyork_dict_conf, newyork_data)
     prepare_data(holand_dict, holand_dict_conf, holand_data)
+    prepare_data(spain_dict, spain_dict_conf, spain_data)
 
 
 ###Render template
     return render_template('covid.html', h=hubei_data ,i=italy_data, g=germany_data, \
-        n=newyork_data, hol=holand_data)
+        n=newyork_data, hol=holand_data, s=spain_data)
 
 
 
