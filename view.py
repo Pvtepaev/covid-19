@@ -24,7 +24,7 @@ def covid():
         for i in ddict.keys():
             date = datetime.strptime(i, '%m/%d/%y')
             value = ddict.get(i)
-            dict_name.append({'date': date, 'value': value})
+            dict_name.append({'date': str(date.date()), 'value': value})
 
     
     os.chdir('/home/loki/python/covid/data')

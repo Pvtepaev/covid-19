@@ -6,69 +6,89 @@
 
 {% endblock %}
 {% block content %}
-Covid data daily
-{{h}}
 
-<div id="my_dataviz"></div>
+<p> Hubei Recovered daily </p>
+<div id="hubei"></div>
 
 
 <script type="text/javascript">
-	// List of words
+	
 	var data = [ {% for m in h %}
-					{ date: "{{ m.date }}", value: "{{ m.value }}" },
+					{ date: "{{ m.date }}",value: "{{ m.value }}" },
 					{% endfor %} ];
 
-// // sort data
-//   data.sort(function(b, a) {
-//     return a.Value - b.Value;
-//   });
+
+	// === 1. Boilerplate setup
+	// Set canvas margins
+	var margin = {top: 20, right: 50, bottom: 30, left: 50};
+	var width = 1000 - margin.left - margin.right;
+	var height = 400 - margin.top - margin.bottom;
+
+	// Create svg object
+	var svg = d3.select('#hubei').append('svg')
+	    .attr('width', width + margin.left + margin.right)
+	    .attr('height', height + margin.top + margin.bottom)
+	  .append('g')
+	    .attr('transform', `translate(${margin.left}, ${margin.top})`);
+
+	// === 2. Set scales and draw line
+	// Set x (timeseries) and y (linear) scales
+	var xScale = d3.scaleTime().range([0, width]);
+	var yScale = d3.scaleLinear().range([height , 0]);
+
+	// === 3. Append data and start drawing
+	// create parseTime helper to turn string into time format (11-Apr-12) into datetime JS object
+	var parseTime = d3.timeParse('%Y-%m-%d');
+	// Iterate through each data point and parse strings into time and number format
+	data.forEach(function(d){
+	  d.date = parseTime(d.date);
+	  d.value = parseInt(d.value);
+	});
+
+	// Set the x and y scales to the data ranges x based on min and max date range (d3.extent()) and y based on 0 to max value
+	xScale.domain(d3.extent(data, d => d.date));
+	yScale.domain([0, d3.max(data, d => d.value)]);
 
 
-	var width = 1000;
-	var height = 400;
-	var svg = d3.select("#my_dataviz").append("svg")
-	            .attr("width", width)
-	            .attr("height", height)
-	            .attr("transform", "translate(80,30)");
+	// Create bar and append data.close and x position set based on barWidth equidistant
+	var barWidth = width/ data.length;
+	var bar = svg.selectAll('g')
+	    .data(data, d => d.value)
+	  .enter().append('g')
+	    .attr('transform', (d,i) => `translate(${i * barWidth},0)`)
+  
+	// Add rectangles to bar 
+	bar.append('rect')
+	  .attr('y', d => yScale(d.value))
+	  .attr('width', barWidth - 4)
+	  .attr('height', d => height -  yScale(d.value))
+	  .style("fill", "darkgreen")
+
+
+	// Add text to rectangles
+	bar.append('text')
+	  .attr('y', d => yScale(d.value) - 5)
+	  .attr('text-anchor','middle')
+	  .attr('x', barWidth / 2)
+	  .text(d => d.value)
+	  .style("fill", "darkgreen")
+	  .style("font-size", "8px");
+
+	// Add the axis 
+	var xAxis = d3.axisBottom(xScale)
+	  .tickFormat(d3.timeFormat('%Y-%m-%d'))
+	  .ticks(5)
+	  .tickSize(0);
+
+	svg.append('g')
+	  .attr('transform', `translate(0, ${height})`)
+	  .call(xAxis);
+
+	svg.append('g')
+	  .call(d3.axisLeft(yScale))
 
 
 
-
-	// Add X axis
-	var xScale = d3.scaleLinear()
-	.domain([0, d3.max(data, function(d) {
-	                   return d.value;
-	               })])
-	.range([ 0, width]);
-
-	svg.append("g")
-	.attr("transform", "translate(0," + height + ")")
-	.call(d3.axisBottom(xScale))
-	.selectAll("text")
-	  .attr("transform", "translate(-10,0)rotate(-45)")
-	  .style("text-anchor", "end");
-
-
-
-	 // Y axis
-	var yScale = d3.scaleBand()
-	.range([ 0, height ])
-	.domain(data.map(function(d) { return d.date; }))
-	.padding(.1);
-
-	svg.append("g")
-	.call(d3.axisLeft(yScale))
-
-	//Bars
-	svg.selectAll("myRect")
-	.data(data)
-	.enter()
-	.append("rect")
-	.attr("x", xScale(0) )
-	.attr("y", function(d) { return yScale(d.date); })
-	.attr("width", function(d) { return xScale(d.value); })
-	.attr("height", yScale.bandwidth() )
-	.attr("fill", "#69b3a2");
 </script>
 
 
