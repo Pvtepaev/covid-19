@@ -95,9 +95,9 @@ prepare_data(spain_dict, spain_dict_conf, spain_data)
 
 os.chdir('/home/loki/docker/nginx-proxy/data')
 
-write_data('hubei.scv', hubei_data)
-write_data('italy.scv', italy_data)
+write_data('hubei.csv', hubei_data)
+write_data('italy.csv', italy_data)
 write_data('spain.csv', spain_data)
-write_data('germany.scv', germany_data)
+write_data('germany.csv', germany_data)
 write_data('newyork.csv', newyork_data)
 write_data('holand.csv', holand_data)
