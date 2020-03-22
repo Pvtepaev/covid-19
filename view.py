@@ -31,7 +31,7 @@ def covid():
             dict_name.append({'date': str(date.date()), 'recovered': recovered, \
                 'confirmed': confirmed})
 
-    
+
     os.chdir('/home/loki/python/covid/data')
 
     filename_recovered = 'time_series_19-covid-Recovered.csv'
