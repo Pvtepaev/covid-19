@@ -55,7 +55,8 @@ def covid():
 
 
 ###Render template
-    return render_template('covid.html', h=hubei_data)
+    return render_template('covid.html', h=hubei_data ,i=italy_data, g=germany_data, \
+        n=newyork_data, hol=holand_data)
 
 
 
