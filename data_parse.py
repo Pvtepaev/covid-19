@@ -25,10 +25,10 @@ def prepare_data(ddict, ddict2, dict_name):
             'confirmed': confirmed})
 
 def write_data(file, data_list):
-    with open(file, "w") as file:
+    with open(file, "w") as wfile:
         fieldnames = ['date', 'confirmed', 'recovered']
 
-        writer = csv.DictWriter(file, fieldnames=fieldnames)
+        writer = csv.DictWriter(wfile, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(data_list)
 
