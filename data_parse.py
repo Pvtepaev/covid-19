@@ -93,7 +93,7 @@ prepare_data(holand_dict, holand_dict_conf, holand_data)
 prepare_data(spain_dict, spain_dict_conf, spain_data)
 
 
-os.chdir('/home/loki/docker/nginx-proxy/data')
+os.chdir('/home/loki/docker/nginx-proxy/html/data')
 
 write_data('hubei.csv', hubei_data)
 write_data('italy.csv', italy_data)
